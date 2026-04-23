@@ -179,3 +179,164 @@ class MyTestCase(unittest.TestCase):
             with self.assertRaises(EnterpriseManagementException) as cm:
                 EnterpriseManager.register_document(file_path)
             self.assertIn("JSON data has no valid values", str(cm.exception))
+
+    def test_TC_SYN_15_duplicate_opening_brace(self):
+        """TC_SYN_15: Duplicate { at start"""
+        content = '{{"PROJECT_ID":"a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4","FILENAME":"myFile01.pdf"}'
+        with tempfile.TemporaryDirectory() as tmpdir:
+            file_path = os.path.join(tmpdir, "test15.json")
+            with open(file_path, "w", encoding="utf-8") as fp:
+                fp.write(content)
+
+            with self.assertRaises(EnterpriseManagementException) as cm:
+                EnterpriseManager.register_document(file_path)
+            self.assertIn("The file is not JSON formatted", str(cm.exception))
+
+    def test_TC_SYN_16_duplicate_separator(self):
+        """TC_SYN_16: Duplicate , between fields"""
+        content = '{"PROJECT_ID":"a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",,"FILENAME":"myFile01.pdf"}'
+        with tempfile.TemporaryDirectory() as tmpdir:
+            file_path = os.path.join(tmpdir, "test16.json")
+            with open(file_path, "w", encoding="utf-8") as fp:
+                fp.write(content)
+
+            with self.assertRaises(EnterpriseManagementException) as cm:
+                EnterpriseManager.register_document(file_path)
+            self.assertIn("The file is not JSON formatted", str(cm.exception))
+
+    def test_TC_SYN_17_modified_opening_brace(self):
+        """TC_SYN_17: { replaced by ["""
+        content = '["PROJECT_ID":"a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4","FILENAME":"myFile01.pdf"}'
+        with tempfile.TemporaryDirectory() as tmpdir:
+            file_path = os.path.join(tmpdir, "test17.json")
+            with open(file_path, "w", encoding="utf-8") as fp:
+                fp.write(content)
+
+            with self.assertRaises(EnterpriseManagementException) as cm:
+                EnterpriseManager.register_document(file_path)
+            self.assertIn("The file is not JSON formatted", str(cm.exception))
+
+    def test_TC_SYN_18_modified_separator(self):
+        """TC_SYN_18: , replaced by ;"""
+        content = '{"PROJECT_ID":"a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4";"FILENAME":"myFile01.pdf"}'
+        with tempfile.TemporaryDirectory() as tmpdir:
+            file_path = os.path.join(tmpdir, "test18.json")
+            with open(file_path, "w", encoding="utf-8") as fp:
+                fp.write(content)
+
+            with self.assertRaises(EnterpriseManagementException) as cm:
+                EnterpriseManager.register_document(file_path)
+            self.assertIn("The file is not JSON formatted", str(cm.exception))
+
+    def test_TC_SYN_19_modified_colon(self):
+        """TC_SYN_19: : replaced by ="""
+        content = '{"PROJECT_ID"="a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4","FILENAME":"myFile01.pdf"}'
+        with tempfile.TemporaryDirectory() as tmpdir:
+            file_path = os.path.join(tmpdir, "test19.json")
+            with open(file_path, "w", encoding="utf-8") as fp:
+                fp.write(content)
+
+            with self.assertRaises(EnterpriseManagementException) as cm:
+                EnterpriseManager.register_document(file_path)
+            self.assertIn("The file is not JSON formatted", str(cm.exception))
+
+    def test_TC_SYN_20_wrong_project_id_key(self):
+        """TC_SYN_20: PROJECT_ID key modified"""
+        data = {"PROJECT": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4", "FILENAME": "myFile01.pdf"}
+        with tempfile.TemporaryDirectory() as tmpdir:
+            file_path = os.path.join(tmpdir, "test20.json")
+            with open(file_path, "w", encoding="utf-8") as fp:
+                json.dump(data, fp)
+
+            with self.assertRaises(EnterpriseManagementException) as cm:
+                EnterpriseManager.register_document(file_path)
+            self.assertIn("JSON does not have the expected structure", str(cm.exception))
+
+    def test_TC_SYN_21_wrong_filename_key(self):
+        """TC_SYN_21: FILENAME key modified"""
+        data = {"PROJECT_ID": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4", "FILE": "myFile01.pdf"}
+        with tempfile.TemporaryDirectory() as tmpdir:
+            file_path = os.path.join(tmpdir, "test21.json")
+            with open(file_path, "w", encoding="utf-8") as fp:
+                json.dump(data, fp)
+
+            with self.assertRaises(EnterpriseManagementException) as cm:
+                EnterpriseManager.register_document(file_path)
+            self.assertIn("JSON does not have the expected structure", str(cm.exception))
+
+    def test_TC_SYN_22_invalid_project_id_hex(self):
+        """TC_SYN_22: PROJECT_ID contains invalid hex"""
+        data = {"PROJECT_ID": "g1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4", "FILENAME": "myFile01.pdf"}
+        with tempfile.TemporaryDirectory() as tmpdir:
+            file_path = os.path.join(tmpdir, "test22.json")
+            with open(file_path, "w", encoding="utf-8") as fp:
+                json.dump(data, fp)
+
+            with self.assertRaises(EnterpriseManagementException) as cm:
+                EnterpriseManager.register_document(file_path)
+            self.assertIn("JSON data has no valid values", str(cm.exception))
+
+    def test_TC_SYN_23_invalid_filename_char(self):
+        """TC_SYN_23: invalid char in filename"""
+        data = {"PROJECT_ID": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4", "FILENAME": "myFil@01.pdf"}
+        with tempfile.TemporaryDirectory() as tmpdir:
+            file_path = os.path.join(tmpdir, "test23.json")
+            with open(file_path, "w", encoding="utf-8") as fp:
+                json.dump(data, fp)
+
+            with self.assertRaises(EnterpriseManagementException) as cm:
+                EnterpriseManager.register_document(file_path)
+            self.assertIn("JSON data has no valid values", str(cm.exception))
+
+    def test_TC_SYN_24_invalid_extension(self):
+        """TC_SYN_24: invalid extension"""
+        data = {"PROJECT_ID": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4", "FILENAME": "myFile01.txt"}
+        with tempfile.TemporaryDirectory() as tmpdir:
+            file_path = os.path.join(tmpdir, "test24.json")
+            with open(file_path, "w", encoding="utf-8") as fp:
+                json.dump(data, fp)
+
+            with self.assertRaises(EnterpriseManagementException) as cm:
+                EnterpriseManager.register_document(file_path)
+            self.assertIn("JSON data has no valid values", str(cm.exception))
+
+    def test_TC_SYN_25_file_not_found(self):
+        """TC_SYN_25: file path does not exist"""
+        with self.assertRaises(EnterpriseManagementException) as cm:
+            EnterpriseManager.register_document("nonexistent.json")
+        self.assertIn("Input file not found", str(cm.exception))
+
+    def test_TC_SYN_26_not_json_content(self):
+        """TC_SYN_26: file content is not JSON"""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            file_path = os.path.join(tmpdir, "test26.json")
+            with open(file_path, "w", encoding="utf-8") as fp:
+                fp.write("notajson")
+
+            with self.assertRaises(EnterpriseManagementException) as cm:
+                EnterpriseManager.register_document(file_path)
+            self.assertIn("The file is not JSON formatted", str(cm.exception))
+
+    def test_TC_SYN_27_hash_failure(self):
+        """TC_SYN_27: simulate SHA-256 failure"""
+        import hashlib
+        original_sha256 = hashlib.sha256
+
+        def mock_sha256(*args, **kwargs):
+            raise Exception("hash error")
+
+        hashlib.sha256 = mock_sha256
+
+        data = {"PROJECT_ID": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4", "FILENAME": "myFile01.pdf"}
+        try:
+            with tempfile.TemporaryDirectory() as tmpdir:
+                file_path = os.path.join(tmpdir, "test27.json")
+                with open(file_path, "w", encoding="utf-8") as fp:
+                    json.dump(data, fp)
+
+                with self.assertRaises(EnterpriseManagementException) as cm:
+                    EnterpriseManager.register_document(file_path)
+
+                self.assertIn("Internal processing error", str(cm.exception))
+        finally:
+            hashlib.sha256 = original_sha256
