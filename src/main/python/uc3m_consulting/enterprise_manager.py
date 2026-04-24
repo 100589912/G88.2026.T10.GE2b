@@ -41,6 +41,7 @@ class EnterpriseManager:
         valid_extensions = ('.pdf', '.docx', '.xlsx')
 
         #checks following params:
+        # project_id is a hex string
         # project_id is 32 chars
         # filename is 8 characters and are nums or letters
         # filename ends with valid extension
@@ -53,7 +54,7 @@ class EnterpriseManager:
         except: # This is a catch-all for any unexpected exceptions during signature generation
             raise EnterpriseManagementException("Internal processing error when getting the file_signature")
         with open(filename, "w", encoding="utf-8") as json_file: #output as filename
-            json_file.write(filename + project_id + signature)
+            json_file.write(filename + " , " + project_id + " , " + signature)
 
         return signature, filename
         
