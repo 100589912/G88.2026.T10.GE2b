@@ -17,7 +17,13 @@ class EnterpriseManager:
     @staticmethod
     def register_document(input_file: str):
 
-       
+        def is_hex(val):
+                try:
+                    int(val, 16)
+                    return True
+                except ValueError:
+                    return False
+        
         try:
             with open(input_file, encoding="utf-8") as json_file:
                 document_data = json.load(json_file)
@@ -38,7 +44,7 @@ class EnterpriseManager:
         # project_id is 32 chars
         # filename is 8 characters and are nums or letters
         # filename ends with valid extension
-        if not (len(project_id) == 32 and filename[:8].isalnum() and filename.endswith(valid_extensions) and filename[8] == "."):
+        if not (is_hex(project_id) and len(project_id) == 32 and filename[:8].isalnum() and filename.endswith(valid_extensions) and filename[8] == "."):
             raise EnterpriseManagementException("JSON data has no valid values") 
         
         project = ProjectDocument(project_id, filename)
