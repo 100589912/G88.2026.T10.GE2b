@@ -3,6 +3,7 @@ import json
 import os
 import tempfile
 import unittest
+import hashlib
 from uc3m_consulting import EnterpriseManager, EnterpriseManagementException
 
 class MyTestCase(unittest.TestCase):
@@ -319,11 +320,11 @@ class MyTestCase(unittest.TestCase):
 
     def test_TC_SYN_27_hash_failure(self):
         """TC_SYN_27: simulate SHA-256 failure"""
-        import hashlib
+
         original_sha256 = hashlib.sha256
 
         def mock_sha256(*args, **kwargs):
-            raise Exception("hash error")
+            raise ValueError("hash error is present")
 
         hashlib.sha256 = mock_sha256
 
